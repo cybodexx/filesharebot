@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: thunder-file-share
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m Thunder.app
+    envVars:
+      - key: API_ID
+        sync: false
+      - key: API_HASH
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: BIN_CHANNEL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: FQDN
+        sync: false
+      - key: PORT
+        value: 5000

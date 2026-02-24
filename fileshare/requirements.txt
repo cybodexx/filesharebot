@@ -1,0 +1,10 @@
+aiohttp
+aiofiles
+python-dotenv
+asyncpg
+pyrofork
+tgcrypto
+aiohttp
+asyncpg
+pyrogram
+TgCrypto

@@ -1,0 +1,51 @@
+modules = ["web", "bash", "python-3.11", "postgresql-16"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["libuv", "postgresql"]
+
+[userenv]
+
+[userenv.shared]
+FQDN = "b8d04467-7d60-4157-bdcb-268986fef695-00-36gx6gznl3459.sisko.replit.dev"
+HAS_SSL = "True"
+NO_PORT = "True"
+PORT = "5000"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Thunder Web App"
+
+[[workflows.workflow]]
+name = "Thunder Web App"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m Thunder.app"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 42409
+externalPort = 3000
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["python", "-m", "Thunder"]
