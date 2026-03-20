@@ -9,9 +9,9 @@
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.13%2B-blue?style=for-the-badge&logo=python" alt="Python Version"></a>
-  <a href="https://github.com/Mayuri-Chan/pyrofork"><img src="https://img.shields.io/badge/Pyrofork-red?style=for-the-badge" alt="Pyrofork"></a>
+  <a href="[https://github.com/Mayuri-Chan/pyrofork](https://github.com/cybodexx)"><img src="https://img.shields.io/badge/Pyrofork-red?style=for-the-badge" alt="Pyrofork"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/fyaz05/FileToLink?style=for-the-badge&color=green" alt="License"></a>
-  <a href="https://t.me/Thunder_Updates"><img src="https://img.shields.io/badge/Telegram-Channel-blue?style=for-the-badge&logo=telegram" alt="Telegram Channel"></a>
+  <a href="https://www.instagram.com/yours_pranav_27"><img src="https://img.shields.io/badge/Telegram-Channel-blue?style=for-the-badge&logo=telegram" alt="Telegram Channel"></a>
 </p>
 
 <hr>
@@ -535,3 +535,16 @@ This project is not affiliated with Telegram. Use it responsibly and in complian
   <a href="https://github.com/fyaz05/FileToLink/issues/new">Report Bug</a> •
   <a href="https://github.com/fyaz05/FileToLink/issues/new">Request Feature</a>
 </p># fileshae
+
+## 👨‍💻 Developer & Credit
+
+This project is modified & maintained by **Pranav Prajapati** 🚀  
+
+📸 Instagram: https://www.instagram.com/yours_pranav_27/  
+💻 GitHub: https://github.com/cybodexx  
+
+---
+
+### ⚡ Support Me
+If you like this project, please ⭐ the repo and follow me on Instagram for more coding content & bots!
+
