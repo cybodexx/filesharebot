@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}My Earnings - {{ config.NAME }}{% endblock %}
+
+{% block content %}
+<div class="user-earnings-page">
+    <div class="page-header glass-strong">
+        <h1>Earnings & Analytics</h1>
+        <a href="/my/wallet" class="btn btn-primary">
+            <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9z"/></svg>
+            Withdraw
+        </a>
+    </div>
+
+    <div class="earnings-summary">
+        <div class="earnings-card glass total">
+            <h3>Total Earnings</h3>
+            <div class="amount">${{ "%.4f"|format(earnings.total_earnings) }}</div>
+            <p>Lifetime earnings from all content</p>
+        </div>
+        <div class="earnings-card glass available">
+            <h3>Available</h3>
+            <div class="amount">${{ "%.4f"|format(earnings.available_earnings) }}</div>
+            <p>Ready to withdraw</p>
+        </div>
+        <div class="earnings-card glass pending">
+            <h3>Pending</h3>
+            <div class="amount">${{ "%.4f"|format(earnings.pending_earnings) }}</div>
+            <p>Under review (7 days)</p>
+        </div>
+    </div>
+
+    <div class="earnings-info glass">
+        <h3>How Earnings Work</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <div>
+                    <h4>Video Views</h4>
+                    <p>Earn from ads shown on your videos</p>
+                </div>
+            </div>
+            <div class="info-item">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
+                <div>
+                    <h4>40% Creator Share</h4>
+                    <p>You keep 40% of all ad revenue</p>
+                </div>
+            </div>
+            <div class="info-item">
+                <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9z"/></svg>
+                <div>
+                    <h4>USDT Payments</h4>
+                    <p>Withdraw to TON wallet in USDT</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if earnings.daily_earnings %}
+    <div class="earnings-chart glass">
+        <h3>Earnings Over Time</h3>
+        <canvas id="earningsChart"></canvas>
+    </div>
+    {% endif %}
+
+    {% if earnings.top_earning_files %}
+    <div class="top-files glass">
+        <h3>Top Earning Files</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Impressions</th>
+                    <th>Earnings</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in earnings.top_earning_files %}
+                <tr>
+                    <td><a href="/f/{{ file.code }}">{{ file.name }}</a></td>
+                    <td>{{ file.impressions }}</td>
+                    <td>${{ "%.4f"|format(file.earnings) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if earnings.daily_earnings %}
+const ctx = document.getElementById('earningsChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ earnings.daily_earnings | map(attribute='date') | list | tojson }},
+        datasets: [{
+            label: 'Daily Earnings ($)',
+            data: {{ earnings.daily_earnings | map(attribute='earnings') | list | tojson }},
+            borderColor: '#00f0ff',
+            backgroundColor: 'rgba(0, 240, 255, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

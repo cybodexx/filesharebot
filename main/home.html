@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config.NAME }} - Stream & Share Videos{% endblock %}
+
+{% block content %}
+<div class="netflix-hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Unlimited Videos, Endless Entertainment</h1>
+        <p class="hero-subtitle">Share and stream your videos with the world. Fast, secure, and monetizable.</p>
+        
+        {% if user %}
+        <div class="hero-actions">
+            <a href="/upload" class="btn btn-primary btn-lg">
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                Upload Video
+            </a>
+            <a href="/my/dashboard" class="btn btn-outline btn-lg">My Dashboard</a>
+        </div>
+        {% else %}
+        <div class="hero-actions">
+            <a href="/auth/register" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="/auth/login" class="btn btn-outline btn-lg">Sign In</a>
+        </div>
+        {% endif %}
+    </div>
+    <div class="hero-overlay"></div>
+</div>
+
+<section class="features-section">
+    <h2 class="section-title">Why Choose vidshare.in?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <h3>Lightning Fast</h3>
+            <p>Powered by Telegram's global CDN for blazing fast uploads and streaming worldwide.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon secondary">
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            </div>
+            <h3>Secure & Private</h3>
+            <p>Password protection and auto-expiring links keep your content safe and under control.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon tertiary">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
+            </div>
+            <h3>Earn Money</h3>
+            <p>Monetize your content with our 40% revenue share program. Get paid for your creativity.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon success">
+                <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+            </div>
+            <h3>Easy Sharing</h3>
+            <p>Share via link, QR code, or directly to social media. Reach your audience instantly.</p>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Create Account</h3>
+            <p>Sign up for free and get 100GB of storage space</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>Upload Content</h3>
+            <p>Upload videos up to {{ config.MAX_FILE_SIZE_MB }}MB each</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Share & Earn</h3>
+            <p>Share links and earn 40% of ad revenue</p>
+        </div>
+    </div>
+</section>
+
+{% if not user %}
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Ready to Start Sharing?</h2>
+        <p>Join thousands of creators who are sharing and monetizing their content.</p>
+        <a href="/auth/register" class="btn btn-primary btn-xl">Create Free Account</a>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+

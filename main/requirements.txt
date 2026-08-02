@@ -1,0 +1,12 @@
+aiohttp
+aiofiles
+aiohttp-jinja2
+asyncpg
+jinja2
+pyrofork
+tgcrypto
+python-dotenv
+segno
+supabase
+aiohttp-session
+cryptography

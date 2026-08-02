@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Playlists - {{ config.NAME }}{% endblock %}
+
+{% block content %}
+<div class="ad-banner ad-banner-header" id="ad-header">
+    <div class="ad-placeholder">
+        <span class="ad-label">Ad Space</span>
+    </div>
+</div>
+
+<div class="section-header" style="margin-bottom: 30px;">
+    <h2 class="section-title" style="font-size: 1.8rem;">
+        <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
+        Playlists
+    </h2>
+    <button class="btn btn-primary" onclick="showCreatePlaylist()">
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Create Playlist
+    </button>
+</div>
+
+<div id="createPlaylistModal" class="password-modal" style="display: none;">
+    <div class="password-form glass-strong">
+        <h3 style="margin-bottom: 20px;">Create New Playlist</h3>
+        <div class="option-group" style="margin-bottom: 15px;">
+            <label class="option-label">Playlist Name</label>
+            <input type="text" class="option-input" id="playlistName" placeholder="My Awesome Playlist">
+        </div>
+        <div class="option-group" style="margin-bottom: 15px;">
+            <label class="option-label">Description (Optional)</label>
+            <textarea class="option-input" id="playlistDescription" placeholder="Describe your playlist..." style="min-height: 80px; resize: vertical;"></textarea>
+        </div>
+        <div class="option-group" style="margin-bottom: 20px;">
+            <label class="option-label">Password (Optional)</label>
+            <input type="password" class="option-input" id="playlistPassword" placeholder="Leave empty for public access" autocomplete="new-password">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" style="flex: 1;" onclick="hideCreatePlaylist()">Cancel</button>
+            <button class="btn btn-primary" style="flex: 1;" onclick="createPlaylist()">Create</button>
+        </div>
+    </div>
+</div>
+
+{% if playlists %}
+<div class="stagger-fade" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+    {% for playlist in playlists %}
+    <a href="/playlist/{{ playlist.unique_code }}" class="glass-strong neon-border hover-lift" style="padding: 25px; text-decoration: none; color: inherit; display: block;">
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div class="playlist-cover" style="width: 80px; height: 80px; margin: 0; flex-shrink: 0;">
+                <svg viewBox="0 0 24 24" style="width: 35px; height: 35px;"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <h3 style="font-size: 1.2rem; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ playlist.name }}</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px;">{{ playlist.file_count }} files</p>
+                <div style="display: flex; gap: 15px;">
+                    <span class="badge badge-primary">{{ playlist.view_count }} views</span>
+                    <span class="badge badge-secondary">{{ playlist.created_at.strftime('%b %d') }}</span>
+                </div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="glass-strong empty-state" style="padding: 60px;">
+    <div class="empty-icon">
+        <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
+    </div>
+    <h3 class="empty-title">No playlists yet</h3>
+    <p class="empty-text">Create your first playlist to organize and share multiple files</p>
+    <button class="btn btn-primary" onclick="showCreatePlaylist()">
+        <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Create Playlist
+    </button>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showCreatePlaylist() {
+        document.getElementById('createPlaylistModal').style.display = 'flex';
+    }
+    
+    function hideCreatePlaylist() {
+        document.getElementById('createPlaylistModal').style.display = 'none';
+    }
+    
+    async function createPlaylist() {
+        const name = document.getElementById('playlistName').value.trim();
+        const description = document.getElementById('playlistDescription').value.trim();
+        const password = document.getElementById('playlistPassword').value;
+        
+        if (!name) {
+            showToast('Please enter a playlist name', 'error');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/playlists', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description, password })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                showToast('Playlist created!', 'success');
+                window.location.href = '/playlist/' + data.code;
+            } else {
+                const data = await response.json();
+                showToast(data.error || 'Failed to create playlist', 'error');
+            }
+        } catch (e) {
+            showToast('Error creating playlist', 'error');
+        }
+    }
+</script>
+{% endblock %}

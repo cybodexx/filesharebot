@@ -1,0 +1,68 @@
+2025-12-07 14:17:14,797 - ThunderBot - INFO - PostgreSQL connection pool established.
+2025-12-07 14:19:14,018 - ThunderBot - ERROR - Database error in log_newusr for user 7506474701: Telegram says: [400 CHANNEL_INVALID] (caused by "channels.GetChannels") Pyrogram 2.3.68 thinks: The channel parameter is invalid
+2025-12-07 14:21:08,694 - ThunderBot - ERROR - Error fwd_media copy: Telegram says: [400 CHANNEL_INVALID] (caused by "channels.GetChannels") Pyrogram 2.3.68 thinks: The channel parameter is invalid
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 63, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/storage/sqlite_storage.py", line 210, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: -1003280888507'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/Thunder/bot/plugins/stream.py", line 42, in fwd_media
+    return await m_msg.copy(chat_id=Var.BIN_CHANNEL)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/types/messages_and_media/message.py", line 5021, in copy
+    return await send_media(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/methods/messages/send_cached_media.py", line 167, in send_cached_media
+    peer=await self.resolve_peer(chat_id),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 113, in resolve_peer
+    await self.invoke(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/methods/advanced/invoke.py", line 80, in invoke
+    r = await self.session.invoke(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/session/session.py", line 420, in invoke
+    return await self.send(query, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/session/session.py", line 377, in send
+    RPCError.raise_it(result, type(data))
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/errors/rpc_error.py", line 93, in raise_it
+    raise getattr(
+pyrogram.errors.exceptions.bad_request_400.ChannelInvalid: Telegram says: [400 CHANNEL_INVALID] (caused by "channels.GetChannels") Pyrogram 2.3.68 thinks: The channel parameter is invalid
+2025-12-07 14:21:08,696 - ThunderBot - ERROR - Failed to forward media for message 5. Skipping.
+2025-12-07 14:26:43,774 - ThunderBot - INFO - PostgreSQL connection pool closed.
+2025-12-07 14:26:45,744 - ThunderBot - INFO - PostgreSQL connection pool established.
+2025-12-07 14:27:47,092 - ThunderBot - ERROR - Error fwd_media copy: Peer id invalid: 1003280888507
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 63, in resolve_peer
+    return await self.storage.get_peer_by_id(peer_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/storage/sqlite_storage.py", line 210, in get_peer_by_id
+    raise KeyError(f"ID not found: {peer_id}")
+KeyError: 'ID not found: 1003280888507'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/Thunder/bot/plugins/stream.py", line 42, in fwd_media
+    return await m_msg.copy(chat_id=Var.BIN_CHANNEL)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/types/messages_and_media/message.py", line 5021, in copy
+    return await send_media(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/methods/messages/send_cached_media.py", line 167, in send_cached_media
+    peer=await self.resolve_peer(chat_id),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/methods/advanced/resolve_peer.py", line 91, in resolve_peer
+    peer_type = utils.get_peer_type(peer_id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/pyrogram/utils.py", line 337, in get_peer_type
+    raise ValueError(f"Peer id invalid: {peer_id}")
+ValueError: Peer id invalid: 1003280888507
+2025-12-07 14:27:47,094 - ThunderBot - ERROR - Failed to forward media for message 9. Skipping.
+2025-12-07 14:33:56,073 - ThunderBot - CRITICAL - Missing required Telegram API configuration

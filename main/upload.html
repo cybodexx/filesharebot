@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}Upload - {{ config.NAME }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Upload Content</h1>
+    <p class="page-subtitle">Share your videos and files with the world</p>
+</div>
+
+<div class="upload-container glass-strong">
+    <div class="upload-zone upload-zone-enhanced" id="uploadZone">
+        <div class="upload-zone-content">
+            <div class="upload-icon glow-animate">
+                <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            </div>
+            <h2 class="upload-title">Drop your files here</h2>
+            <p class="upload-subtitle">or <span onclick="document.getElementById('fileInput').click()">browse</span> to choose</p>
+            <div class="upload-limits">
+                <span>Max file size: {{ config.MAX_FILE_SIZE_MB }}MB</span>
+                <span>Links expire in {{ config.LINK_EXPIRY_DAYS }} days</span>
+            </div>
+        </div>
+    </div>
+    
+    <input type="file" id="fileInput" style="display: none;">
+    
+    <div class="file-info glass" id="fileInfo" style="display: none; padding: 20px; margin-top: 20px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="file-icon" id="fileIcon">
+                <svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
+            </div>
+            <div style="flex: 1;">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-meta" id="fileMeta"></div>
+            </div>
+            <button class="btn btn-secondary" onclick="resetUpload()">
+                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+        </div>
+    </div>
+    
+    <div class="upload-options" id="uploadOptions" style="display: none;">
+        <div class="option-group">
+            <label class="option-label">Password Protection (Optional)</label>
+            <input type="password" class="option-input" id="filePassword" placeholder="Leave empty for no password" autocomplete="new-password">
+        </div>
+        <div class="option-group">
+            <label class="option-label">Expiry Days</label>
+            <select class="option-input" id="expiryDays">
+                <option value="">Default ({{ config.LINK_EXPIRY_DAYS }} days)</option>
+                <option value="1">1 day</option>
+                <option value="3">3 days</option>
+                <option value="7">7 days</option>
+                <option value="14">14 days</option>
+                <option value="30">30 days</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text">
+            <span id="progressPercent">0%</span>
+            <span id="progressStatus">Uploading...</span>
+        </div>
+    </div>
+    
+    <button class="btn btn-primary" id="uploadBtn" style="width: 100%; margin-top: 20px; display: none;" onclick="uploadFile()">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        Upload File
+    </button>
+    
+    <div class="result-card glass" id="resultCard">
+        <div class="result-success">
+            <div class="result-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <h2 class="result-title">File Uploaded Successfully!</h2>
+            <p class="result-subtitle">Your file is ready to share</p>
+            
+            <div class="share-links">
+                <div class="share-link-item">
+                    <input type="text" class="share-link-input" id="shareLink" readonly>
+                    <button class="copy-btn" onclick="copyToClipboard(document.getElementById('shareLink').value)">Copy Link</button>
+                </div>
+            </div>
+            
+            <div id="qrContainer" class="qr-container" style="display: none;"></div>
+            
+            <div class="social-share" style="margin-top: 20px;">
+                <a class="social-btn twitter" id="shareTwitter" target="_blank" title="Share on Twitter">
+                    <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <a class="social-btn facebook" id="shareFacebook" target="_blank" title="Share on Facebook">
+                    <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                </a>
+                <a class="social-btn whatsapp" id="shareWhatsapp" target="_blank" title="Share on WhatsApp">
+                    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </a>
+                <a class="social-btn telegram" id="shareTelegram" target="_blank" title="Share on Telegram">
+                    <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </a>
+                <a class="social-btn email" id="shareEmail" title="Share via Email">
+                    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                </a>
+            </div>
+            
+            <button class="btn btn-secondary" style="margin-top: 25px;" onclick="resetUpload()">Upload Another File</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const uploadOptions = document.getElementById('uploadOptions');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const resultCard = document.getElementById('resultCard');
+    const maxSize = {{ config.MAX_FILE_SIZE }};
+    let selectedFile = null;
+    
+    uploadZone.addEventListener('click', () => fileInput.click());
+    
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+    
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragover');
+    });
+    
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+    
+    function handleFile(file) {
+        if (file.size > maxSize) {
+            showToast('File too large. Maximum size is {{ config.MAX_FILE_SIZE_MB }}MB', 'error');
+            return;
+        }
+        
+        selectedFile = file;
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('fileMeta').textContent = formatBytes(file.size) + ' - ' + (file.type || 'Unknown type');
+        
+        const fileIcon = document.getElementById('fileIcon');
+        fileIcon.className = 'file-icon';
+        if (file.type.startsWith('video/')) fileIcon.classList.add('video');
+        else if (file.type.startsWith('audio/')) fileIcon.classList.add('audio');
+        else if (file.type.startsWith('image/')) fileIcon.classList.add('image');
+        
+        uploadZone.style.display = 'none';
+        fileInfo.style.display = 'block';
+        uploadOptions.style.display = 'grid';
+        uploadBtn.style.display = 'flex';
+        resultCard.classList.remove('visible');
+        resultCard.style.display = 'none';
+    }
+    
+    function resetUpload() {
+        selectedFile = null;
+        fileInput.value = '';
+        uploadZone.style.display = 'block';
+        fileInfo.style.display = 'none';
+        uploadOptions.style.display = 'none';
+        uploadBtn.style.display = 'none';
+        progressContainer.classList.remove('visible');
+        resultCard.classList.remove('visible');
+        resultCard.style.display = 'none';
+        document.getElementById('filePassword').value = '';
+        document.getElementById('expiryDays').value = '';
+    }
+    
+    function uploadFile() {
+        if (!selectedFile) return;
+        
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<svg class="pulse" viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg> Uploading...';
+        progressContainer.classList.add('visible');
+        
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        
+        const password = document.getElementById('filePassword').value;
+        const expiryDays = document.getElementById('expiryDays').value;
+        if (password) formData.append('password', password);
+        if (expiryDays) formData.append('expires_days', expiryDays);
+        
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                document.getElementById('progressFill').style.width = percent + '%';
+                document.getElementById('progressPercent').textContent = percent + '%';
+                if (percent >= 100) {
+                    document.getElementById('progressStatus').textContent = 'Processing...';
+                }
+            }
+        });
+        
+        xhr.addEventListener('load', () => {
+            progressContainer.classList.remove('visible');
+            
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                document.getElementById('shareLink').value = data.share_url;
+                
+                const shareUrl = encodeURIComponent(data.share_url);
+                const shareText = encodeURIComponent('Check out this file I shared!');
+                document.getElementById('shareTwitter').href = `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareText}`;
+                document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+                document.getElementById('shareWhatsapp').href = `https://wa.me/?text=${shareText}%20${shareUrl}`;
+                document.getElementById('shareTelegram').href = `https://t.me/share/url?url=${shareUrl}&text=${shareText}`;
+                document.getElementById('shareEmail').href = `mailto:?subject=Check%20out%20this%20file&body=${shareText}%20${shareUrl}`;
+                
+                if (data.qr_code) {
+                    document.getElementById('qrContainer').innerHTML = data.qr_code;
+                    document.getElementById('qrContainer').style.display = 'inline-block';
+                }
+                
+                fileInfo.style.display = 'none';
+                uploadOptions.style.display = 'none';
+                uploadBtn.style.display = 'none';
+                resultCard.style.display = 'block';
+                resultCard.classList.add('visible');
+                showToast('File uploaded successfully!', 'success');
+                triggerConfetti();
+            } else {
+                let errorMsg = 'Upload failed. Please try again.';
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    errorMsg = data.error || errorMsg;
+                } catch (e) {}
+                showToast(errorMsg, 'error');
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg> Upload File';
+            }
+        });
+        
+        xhr.addEventListener('error', () => {
+            progressContainer.classList.remove('visible');
+            showToast('Network error. Please try again.', 'error');
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg> Upload File';
+        });
+        
+        xhr.open('POST', '/api/upload');
+        xhr.send(formData);
+    }
+    
+    function triggerConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti';
+        document.body.appendChild(container);
+        
+        const colors = ['#e50914', '#00f0ff', '#ff00e5', '#00ff88', '#ffaa00'];
+        
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti-piece';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            container.appendChild(confetti);
+        }
+        
+        setTimeout(() => container.remove(), 3000);
+    }
+</script>
+{% endblock %}

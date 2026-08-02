@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}Telegram Storage — {{ config.NAME }}{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width:680px;">
+    <div class="auth-card glass-strong">
+        <div class="auth-header">
+            <div class="auth-icon" style="background:linear-gradient(135deg,#229ED9,#0088cc);">
+                <svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+            </div>
+            <h1>Personal Telegram Storage</h1>
+            <p>Use your own Telegram account for unlimited private storage</p>
+        </div>
+
+        {% if session_active %}
+        <!-- Active Session -->
+        <div class="auth-success" style="margin-bottom:24px;">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            Connected as <strong>{{ tg_username or tg_phone or 'Telegram User' }}</strong> — unlimited storage active
+        </div>
+
+        <div style="background:var(--glass-bg);border:1px solid var(--border-color);border-radius:12px;padding:20px;margin-bottom:24px;">
+            <h3 style="margin:0 0 12px;font-size:1rem;">Storage Info</h3>
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin:0;">
+                Files you upload are stored privately in your Telegram Saved Messages. Only you can access them via your account. There is no size cap beyond Telegram's own limits.
+            </p>
+        </div>
+
+        <form method="POST" action="/my/telegram-session/delete" onsubmit="return confirm('Remove your Telegram session? Existing files stored there will become inaccessible.');">
+            <button type="submit" class="btn btn-outline btn-full" style="border-color:#ff4d4d;color:#ff4d4d;">
+                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                Disconnect Telegram Session
+            </button>
+        </form>
+
+        {% else %}
+        <!-- No session — show two methods -->
+        {% if error %}
+        <div class="auth-error">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            {{ error }}
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="auth-success">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            {{ success }}
+        </div>
+        {% endif %}
+
+        <!-- Tab switcher -->
+        <div style="display:flex;gap:8px;margin-bottom:28px;background:var(--glass-bg);padding:4px;border-radius:10px;border:1px solid var(--border-color);">
+            <button class="tab-btn active" id="tab-otp" onclick="switchTab('otp')" type="button"
+                style="flex:1;padding:10px;border:none;background:var(--accent-primary);color:#000;border-radius:8px;font-weight:600;cursor:pointer;transition:all .2s;">
+                📱 Phone + OTP
+            </button>
+            <button class="tab-btn" id="tab-paste" onclick="switchTab('paste')" type="button"
+                style="flex:1;padding:10px;border:none;background:transparent;color:var(--text-secondary);border-radius:8px;font-weight:500;cursor:pointer;transition:all .2s;">
+                🔑 Paste Session
+            </button>
+        </div>
+
+        <!-- OTP Flow -->
+        <div id="panel-otp">
+            <div id="step-phone">
+                <div class="form-group">
+                    <label for="phone">Phone number (with country code)</label>
+                    <input type="tel" id="phone" placeholder="+91XXXXXXXXXX" style="width:100%;padding:12px 16px;background:var(--glass-bg);border:1px solid var(--border-color);border-radius:10px;color:var(--text-primary);font-size:1rem;">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="sendOTP()" id="btn-send" type="button">
+                    Send OTP
+                </button>
+            </div>
+
+            <div id="step-code" style="display:none;">
+                <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">
+                    Enter the code Telegram sent to <strong id="display-phone"></strong>
+                </p>
+                <div class="form-group">
+                    <label>OTP Code</label>
+                    <input type="text" id="otp-code" placeholder="12345" maxlength="10"
+                        style="width:100%;padding:12px 16px;background:var(--glass-bg);border:1px solid var(--border-color);border-radius:10px;color:var(--text-primary);font-size:1.4rem;letter-spacing:6px;text-align:center;">
+                </div>
+                <div id="step-2fa" style="display:none;" class="form-group">
+                    <label>2FA Password</label>
+                    <input type="password" id="twofa-pass" placeholder="Your Telegram 2FA password"
+                        style="width:100%;padding:12px 16px;background:var(--glass-bg);border:1px solid var(--border-color);border-radius:10px;color:var(--text-primary);font-size:1rem;">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="verifyOTP()" id="btn-verify" type="button">
+                    Verify &amp; Connect
+                </button>
+                <button class="btn btn-outline btn-full" onclick="resetOTP()" type="button" style="margin-top:8px;">
+                    ← Back
+                </button>
+            </div>
+        </div>
+
+        <!-- Paste Session -->
+        <div id="panel-paste" style="display:none;">
+            <p style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:16px;line-height:1.6;">
+                Generate a Pyrogram StringSession by running the helper script below in your terminal, then paste the result here.
+            </p>
+            <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:14px;margin-bottom:16px;font-family:monospace;font-size:0.8rem;color:#e6edf3;overflow-x:auto;white-space:pre;">python3 -c "
+from pyrogram import Client
+import asyncio
+async def main():
+    async with Client(':memory:', api_id=YOUR_API_ID, api_hash='YOUR_API_HASH') as c:
+        print(await c.export_session_string())
+asyncio.run(main())"</div>
+            <form method="POST" action="/my/telegram-session/save">
+                <div class="form-group">
+                    <label for="session_string">Session String</label>
+                    <textarea id="session_string" name="session_string" rows="4" required
+                        placeholder="Paste your Pyrogram StringSession here..."
+                        style="width:100%;padding:12px 16px;background:var(--glass-bg);border:1px solid var(--border-color);border-radius:10px;color:var(--text-primary);font-size:0.85rem;resize:vertical;font-family:monospace;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    Connect Session
+                </button>
+            </form>
+        </div>
+
+        {% endif %}
+
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border-color);">
+            <a href="/my/dashboard" style="color:var(--text-secondary);font-size:0.875rem;text-decoration:none;">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchTab(tab) {
+    document.getElementById('panel-otp').style.display = tab === 'otp' ? 'block' : 'none';
+    document.getElementById('panel-paste').style.display = tab === 'paste' ? 'block' : 'none';
+    document.getElementById('tab-otp').style.background = tab === 'otp' ? 'var(--accent-primary)' : 'transparent';
+    document.getElementById('tab-otp').style.color = tab === 'otp' ? '#000' : 'var(--text-secondary)';
+    document.getElementById('tab-paste').style.background = tab === 'paste' ? 'var(--accent-primary)' : 'transparent';
+    document.getElementById('tab-paste').style.color = tab === 'paste' ? '#000' : 'var(--text-secondary)';
+}
+
+async function sendOTP() {
+    const phone = document.getElementById('phone').value.trim();
+    if (!phone) { showToast('Enter your phone number', 'error'); return; }
+    const btn = document.getElementById('btn-send');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+        const r = await fetch('/my/telegram-session/send-otp', {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ phone })
+        });
+        const d = await r.json();
+        if (d.success) {
+            document.getElementById('display-phone').textContent = phone;
+            document.getElementById('step-phone').style.display = 'none';
+            document.getElementById('step-code').style.display = 'block';
+        } else {
+            showToast(d.error || 'Failed to send OTP', 'error');
+            btn.disabled = false; btn.textContent = 'Send OTP';
+        }
+    } catch(e) {
+        showToast('Network error', 'error');
+        btn.disabled = false; btn.textContent = 'Send OTP';
+    }
+}
+
+async function verifyOTP() {
+    const phone = document.getElementById('phone').value.trim();
+    const code = document.getElementById('otp-code').value.trim();
+    const pass = document.getElementById('twofa-pass').value;
+    if (!code) { showToast('Enter the OTP code', 'error'); return; }
+    const btn = document.getElementById('btn-verify');
+    btn.disabled = true; btn.textContent = 'Verifying…';
+    try {
+        const r = await fetch('/my/telegram-session/verify-otp', {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ phone, code, password: pass || null })
+        });
+        const d = await r.json();
+        if (d.success) {
+            showToast('Connected! Reloading…', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else if (d.requires_2fa) {
+            document.getElementById('step-2fa').style.display = 'block';
+            showToast('Enter your 2FA password', 'error');
+            btn.disabled = false; btn.textContent = 'Verify & Connect';
+        } else {
+            showToast(d.error || 'Verification failed', 'error');
+            btn.disabled = false; btn.textContent = 'Verify & Connect';
+        }
+    } catch(e) {
+        showToast('Network error', 'error');
+        btn.disabled = false; btn.textContent = 'Verify & Connect';
+    }
+}
+
+function resetOTP() {
+    document.getElementById('step-phone').style.display = 'block';
+    document.getElementById('step-code').style.display = 'none';
+    document.getElementById('step-2fa').style.display = 'none';
+    document.getElementById('btn-send').disabled = false;
+    document.getElementById('btn-send').textContent = 'Send OTP';
+    document.getElementById('otp-code').value = '';
+    document.getElementById('twofa-pass').value = '';
+}
+</script>
+{% endblock %}

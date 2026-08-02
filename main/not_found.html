@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Not Found - {{ config.NAME }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 80px auto; text-align: center;">
+    <div class="glass-strong" style="padding: 60px;">
+        <div style="width: 120px; height: 120px; background: rgba(255, 51, 102, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px;">
+            <svg viewBox="0 0 24 24" style="width: 60px; height: 60px; fill: var(--danger);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        </div>
+        
+        <h1 style="font-size: 2rem; margin-bottom: 15px;">File Not Found</h1>
+        <p style="color: var(--text-muted); margin-bottom: 30px; line-height: 1.6;">
+            The file you're looking for doesn't exist or has expired. Files are automatically deleted after their expiry date.
+        </p>
+        
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="/" class="btn btn-primary">
+                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                Go Home
+            </a>
+            <a href="/dashboard" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

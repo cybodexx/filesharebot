@@ -1,0 +1,88 @@
+I want you to add a complete “Earnings & Traffic Analytics” section to the User Dashboard, similar to a short URL analytics system but for video links.
+
+FEATURE GOAL:
+Users upload videos → get shareable short URLs → when audience clicks the link and watches the video, the system tracks traffic and earnings. The creator receives 40% revenue from ads shown on their video page.
+
+ADD THE FOLLOWING FEATURES INTO USER DASHBOARD:
+
+1. TRAFFIC ANALYTICS (Like ShortURL)
+Create a dashboard page that shows:
+- Total clicks on all their shared links
+- Total plays/video views
+- Clicks per short URL
+- Plays per short URL
+- Referrers list (top websites sending traffic)
+- Device analytics (desktop/mobile)
+- Country analytics (geo)
+- Daily, weekly, monthly charts
+- Table view of each short URL:
+   - URL slug
+   - Video title
+   - Total clicks
+   - Total plays
+   - CTR
+   - Earnings from this URL
+   - Copy Link button
+
+2. EARNINGS SYSTEM
+Show the creator’s monetization details:
+- Total Earnings (lifetime)
+- Available Earnings (confirmed)
+- Pending Earnings (under review)
+- Earnings per short URL
+- Earnings over time line chart
+- Daily/weekly/monthly earnings
+- Breakdown:
+   - Ad Impressions
+   - Estimated Revenue
+   - Creator Share (40%)
+   - Platform Share (60%)
+
+3. BACKEND REQUIREMENTS
+Add API endpoints:
+- GET /api/dashboard/traffic (returns clicks, plays, url analytics)
+- GET /api/dashboard/earnings (returns all earnings for user)
+- GET /api/dashboard/urls (returns all short URLs + stats)
+- GET /api/dashboard/charts (daily/weekly/monthly breakdowns)
+All endpoints MUST require user authentication.
+
+4. DATABASE REQUIREMENTS
+Use or create tables (if not already existing):
+- clicks (short_url_id, video_id, ip, device, country, referrer)
+- plays (video_id, short_url_id, session_id)
+- earning_events (video_id, revenue, creator_share, created_at)
+- short_urls (slug, video_id, user_id)
+
+Add necessary joins to return user-owned analytics.
+
+5. FRONTEND UI (React/Next.js or your stack)
+Create dashboard sections:
+- “My Earnings”
+- “My Traffic”
+- “URL Performance Table”
+- “Charts & Insights”
+Use:
+- Line chart (earnings over time)
+- Bar chart (clicks & plays)
+- Pie chart (device distribution)
+- Table with sorting & filtering
+
+6. COPY LINK BUTTON
+For each short URL, add a Copy-To-Clipboard button.
+
+7. PERFORMANCE NOTES
+- Pre-aggregate daily stats to avoid heavy DB queries.
+- Use caching where necessary.
+
+8. SECURITY
+- Only allow logged-in users to see their own stats.
+- Prevent users from accessing data of other creators.
+
+9. DELIVERABLES
+- Backend API code
+- DB schema updates
+- Frontend dashboard UI components
+- Analytics charts
+- Integration with existing short URL + video system
+
+Implement everything cleanly and modular.

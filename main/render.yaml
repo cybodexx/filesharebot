@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: thunder-file-share
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m Thunder.app
+    # Render auto-assigns PORT; the app reads it from the env.
+    envVars:
+      # ── Telegram ──────────────────────────────────────────────────────────
+      - key: API_ID
+        sync: false          # fill in Render dashboard
+      - key: API_HASH
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: BIN_CHANNEL
+        sync: false
+      # ── Database (Supabase Transaction Pooler URL recommended) ─────────────
+      - key: DATABASE_URL
+        sync: false          # postgresql://user:pass@host:5432/dbname
+      # ── Supabase Auth ──────────────────────────────────────────────────────
+      - key: SUPABASE_URL
+        sync: false          # https://xxxx.supabase.co
+      - key: SUPABASE_KEY
+        sync: false          # anon / service_role key
+      # ── Google OAuth (optional) ────────────────────────────────────────────
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # ── Session / Security ─────────────────────────────────────────────────
+      - key: SESSION_SECRET
+        sync: false          # random 64-char string
+      # ── App settings ──────────────────────────────────────────────────────
+      - key: APP_NAME
+        value: vidshare.in
+      - key: FQDN
+        sync: false          # your-service.onrender.com  (no https://)
+      - key: HAS_SSL
+        value: "True"
+      - key: MAX_FILE_SIZE_MB
+        value: "2000"
+      - key: LINK_EXPIRY_DAYS
+        value: "10"
+      - key: PORT
+        value: "5000"

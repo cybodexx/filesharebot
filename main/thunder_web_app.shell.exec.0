@@ -1,0 +1,27 @@
+
+======================================================
+      VIDSHARE.IN v3.1.0
+      Video Streaming & File Sharing Platform
+======================================================
+
+[1/4] Connecting to database...
+   [OK] Database connection established
+   [OK] Database tables ready
+[2/4] Initializing Supabase auth...
+   [OK] Supabase client initialized
+   [OK] Supabase authentication ready
+[3/4] Connecting to Telegram...
+   [DEBUG] API_ID: SET
+   [DEBUG] API_HASH: SET
+   [DEBUG] BOT_TOKEN: SET
+   [DEBUG] BIN_CHANNEL: SET
+   [OK] Telegram bot connected as @Pranav_helpbot
+   [OK] Storage channel verified: Administrators
+[4/4] Starting background tasks...
+======================================================
+   Server running on http://0.0.0.0:5000
+   Max file size: 2000MB
+   Link expiry: 10 days
+   Public URL: https://b8d04467-7d60-4157-bdcb-268986fef695-00-36gx6gznl3459.sisko.replit.dev
+======================================================
+   [OK] Database connection closed

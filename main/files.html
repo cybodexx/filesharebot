@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}My Files - {{ config.NAME }}{% endblock %}
+
+{% block content %}
+<div class="user-files-page">
+    <div class="page-header glass-strong">
+        <h1>My Files</h1>
+        <a href="/" class="btn btn-primary">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            Upload New
+        </a>
+    </div>
+
+    {% if files %}
+    <div class="files-grid">
+        {% for file in files %}
+        <div class="file-card glass">
+            <div class="file-preview">
+                {% if file.mime_type and file.mime_type.startswith('video/') %}
+                <div class="video-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                </div>
+                {% elif file.mime_type and file.mime_type.startswith('image/') %}
+                <div class="image-icon">
+                    <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                </div>
+                {% else %}
+                <div class="file-icon">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
+                </div>
+                {% endif %}
+            </div>
+            <div class="file-details">
+                <h3 class="file-name">{{ file.file_name }}</h3>
+                <div class="file-meta">
+                    <span>{{ format_size(file.file_size) }}</span>
+                    <span class="privacy-badge {% if file.is_private %}private{% else %}public{% endif %}">
+                        {{ 'Private' if file.is_private else 'Public' }}
+                    </span>
+                </div>
+                <div class="file-stats">
+                    <span><svg viewBox="0 0 24 24" width="14"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/></svg> {{ file.view_count }}</span>
+                    <span><svg viewBox="0 0 24 24" width="14"><path d="M8 5v14l11-7z"/></svg> {{ file.play_count }}</span>
+                    <span><svg viewBox="0 0 24 24" width="14"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> {{ file.download_count }}</span>
+                </div>
+            </div>
+            <div class="file-actions">
+                <a href="/f/{{ file.unique_code }}" class="btn btn-small">View</a>
+                <button class="btn btn-small btn-secondary" onclick="copyToClipboard('{{ base_url }}/f/{{ file.unique_code }}')">Copy Link</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state glass">
+        <svg viewBox="0 0 24 24" width="80"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
+        <h2>No Files Yet</h2>
+        <p>Start uploading files to share with private links</p>
+        <a href="/" class="btn btn-primary">Upload Your First File</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}My Wallet - {{ config.NAME }}{% endblock %}
+
+{% block content %}
+<div class="user-wallet-page">
+    <div class="page-header glass-strong">
+        <h1>TON Wallet</h1>
+    </div>
+
+    <div class="wallet-summary">
+        <div class="wallet-card glass">
+            <div class="wallet-icon">
+                <svg viewBox="0 0 24 24" width="48"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            </div>
+            <div class="balance">
+                <span class="label">Available Balance (USDT)</span>
+                <span class="amount">${{ "%.4f"|format(wallet.usdt_balance if wallet else 0) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="wallet-setup glass">
+        <h3>TON Wallet Address</h3>
+        {% if wallet and wallet.ton_address %}
+        <div class="wallet-address">
+            <code>{{ wallet.ton_address }}</code>
+            <button class="btn btn-small" onclick="copyToClipboard('{{ wallet.ton_address }}')">Copy</button>
+        </div>
+        {% else %}
+        <p>Connect your TON wallet to receive USDT payments</p>
+        {% endif %}
+        
+        <form method="POST" action="/api/wallet/update" class="wallet-form">
+            <div class="form-group">
+                <label for="ton_address">TON Wallet Address</label>
+                <input type="text" id="ton_address" name="ton_address" placeholder="Enter your TON wallet address" value="{{ wallet.ton_address if wallet and wallet.ton_address else '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Save Wallet</button>
+        </form>
+    </div>
+
+    <div class="withdrawal-section glass">
+        <h3>Withdraw Funds</h3>
+        {% if wallet and wallet.usdt_balance and wallet.usdt_balance > 0 %}
+        <form method="POST" action="/api/wallet/withdraw" class="withdraw-form">
+            <div class="form-group">
+                <label for="amount">Amount (USDT)</label>
+                <input type="number" id="amount" name="amount" step="0.0001" min="1" max="{{ wallet.usdt_balance }}" placeholder="Enter amount">
+            </div>
+            <button type="submit" class="btn btn-primary">Request Withdrawal</button>
+        </form>
+        <p class="note">Minimum withdrawal: $1.00 | Processing time: 24-48 hours</p>
+        {% else %}
+        <div class="empty-state">
+            <p>No funds available for withdrawal</p>
+            <p>Start earning by sharing your content!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="payment-info glass">
+        <h3>Payment Information</h3>
+        <ul>
+            <li>Payments are made in USDT on TON network</li>
+            <li>Minimum withdrawal amount: $1.00</li>
+            <li>Processing time: 24-48 hours</li>
+            <li>No transaction fees for withdrawals</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

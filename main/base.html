@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ config.NAME }}{% endblock %}</title>
+    <meta name="description" content="{{ config.NAME }} - Fast, secure video sharing powered by Telegram. Share files up to {{ config.MAX_FILE_SIZE_MB }}MB with anyone.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block head %}{% endblock %}
+    <style>
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <canvas id="particle-canvas"></canvas>
+    
+    <div class="container">
+        <nav class="nav">
+            <a href="/" class="nav-brand">
+                <div class="nav-brand-icon">
+                    <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <span class="nav-brand-text">{{ config.NAME }}</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="/" class="nav-link {% if active_page == 'home' %}active{% endif %}">Home</a>
+                {% if user %}
+                <a href="/upload" class="nav-link {% if active_page == 'upload' %}active{% endif %}">Upload</a>
+                <a href="/my/dashboard" class="nav-link {% if active_page == 'my_dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="/my/files" class="nav-link {% if active_page == 'my_files' %}active{% endif %}">My Files</a>
+                <a href="/my/earnings" class="nav-link {% if active_page == 'my_earnings' %}active{% endif %}">Earnings</a>
+                <a href="/my/telegram-session" class="nav-link {% if active_page == 'my_telegram' %}active{% endif %}" title="Personal Telegram Storage">⚡ Storage</a>
+                {% endif %}
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                    <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-5a1 1 0 011 1v2a1 1 0 11-2 0V3a1 1 0 011-1zm0 18a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zm9-9a1 1 0 110 2h-2a1 1 0 110-2h2zM5 12a1 1 0 110 2H3a1 1 0 110-2h2zm14.071-7.071a1 1 0 010 1.414l-1.414 1.414a1 1 0 11-1.414-1.414l1.414-1.414a1 1 0 011.414 0zM7.757 16.243a1 1 0 010 1.414l-1.414 1.414a1 1 0 11-1.414-1.414l1.414-1.414a1 1 0 011.414 0zm11.314 0a1 1 0 010 1.414l-1.414 1.414a1 1 0 11-1.414-1.414l1.414-1.414a1 1 0 011.414 0zM7.757 7.757a1 1 0 010 1.414L6.343 10.586a1 1 0 11-1.414-1.414l1.414-1.414a1 1 0 011.414 0z"/></svg>
+                    <svg class="moon-icon hidden" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
+                </button>
+                {% if user %}
+                <a href="/my/dashboard" class="btn btn-secondary user-btn">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z"/></svg>
+                    {{ user.username }}
+                </a>
+                <a href="/auth/logout" class="btn btn-outline">Logout</a>
+                {% else %}
+                <a href="/auth/login" class="btn btn-secondary">Login</a>
+                <a href="/auth/register" class="btn btn-primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </nav>
+        
+        {% block content %}{% endblock %}
+        
+        <div class="ad-banner ad-banner-footer" id="ad-footer">
+            <div class="ad-placeholder">
+                <span class="ad-label">Ad Space</span>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <div class="footer-content">
+                <p class="footer-brand">{{ config.NAME }} v3.1.0</p>
+                <p class="footer-subtitle">Fast & secure video sharing powered by Telegram</p>
+                <div class="footer-stats">
+                    <span>Max upload: {{ config.MAX_FILE_SIZE_MB }}MB</span>
+                    <span class="footer-divider">|</span>
+                    <span>Files expire in {{ config.LINK_EXPIRY_DAYS }} days</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+    
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const sunIcon = document.querySelector('.sun-icon');
+            const moonIcon = document.querySelector('.moon-icon');
+            if (newTheme === 'light') {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+        
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (savedTheme === 'light') {
+                document.querySelector('.sun-icon')?.classList.add('hidden');
+                document.querySelector('.moon-icon')?.classList.remove('hidden');
+            }
+        })();
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            toast.className = 'toast visible toast-' + type;
+            setTimeout(() => toast.classList.remove('visible'), 3000);
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + ' min ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+            if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
+            return formatDate(dateString);
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!', 'success');
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast('Copied to clipboard!', 'success');
+            });
+        }
+        
+        class ParticleSystem {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.particles = [];
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.init();
+                this.animate();
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            init() {
+                const particleCount = Math.min(50, Math.floor(window.innerWidth / 30));
+                for (let i = 0; i < particleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 1,
+                        opacity: Math.random() * 0.5 + 0.1
+                    });
+                }
+            }
+            
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                const theme = document.documentElement.getAttribute('data-theme');
+                const color = theme === 'light' ? '0, 150, 200' : '0, 240, 255';
+                
+                this.particles.forEach((p, i) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    
+                    if (p.x < 0 || p.x > this.canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > this.canvas.height) p.vy *= -1;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(${color}, ${p.opacity})`;
+                    this.ctx.fill();
+                    
+                    this.particles.forEach((p2, j) => {
+                        if (i === j) return;
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 120) {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(p.x, p.y);
+                            this.ctx.lineTo(p2.x, p2.y);
+                            this.ctx.strokeStyle = `rgba(${color}, ${0.1 * (1 - dist / 120)})`;
+                            this.ctx.stroke();
+                        }
+                    });
+                });
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('particle-canvas');
+            if (canvas) new ParticleSystem(canvas);
+            
+            document.querySelectorAll('.stat-value').forEach(el => {
+                const value = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
+                if (value > 0 && !el.classList.contains('animated')) {
+                    el.classList.add('animated');
+                    animateValue(el, 0, value, 1500);
+                }
+            });
+        });
+        
+        function animateValue(el, start, end, duration) {
+            const originalText = el.textContent;
+            const suffix = originalText.replace(/[0-9,]/g, '');
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (end - start) * eased);
+                el.textContent = current.toLocaleString() + suffix;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            requestAnimationFrame(update);
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
